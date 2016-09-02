@@ -13,6 +13,7 @@ class StackOverflowSpider(scrapy.Spider):
 
     def parse_question(self, response):
         yield {
-            'title': response.xpath('//span/text()').extract(),
+            'date': response.xpath('//td[@class="lastPostDate"]//text()').extract_first(),
             'link': response.url,
+            'title': response.xpath('//h2//text()').extract()
         }
