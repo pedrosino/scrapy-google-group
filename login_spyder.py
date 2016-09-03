@@ -12,7 +12,7 @@ class StackOverflowSpider(scrapy.Spider):
     """
     return scrapy.FormRequest.from_response(
       response,
-      formdata={'Email': 'blah'},
+      formdata={'Email': self.user_name},
       callback=self.log_password)
 
   def log_password(self, response):
@@ -21,7 +21,7 @@ class StackOverflowSpider(scrapy.Spider):
     """
     return scrapy.FormRequest.from_response(
       response,
-      formdata={'Passwd': 'blah'},
+      formdata={'Passwd': self.user_pass},
       callback=self.after_login)
 
   def after_login(self, response):
@@ -30,6 +30,8 @@ class StackOverflowSpider(scrapy.Spider):
   def parse_forum(self, response):
     for href in response.css('a::attr(href)'):
       full_url = response.urljoin(href.extract())
+      if "5B" in full_url:
+        yield scrapy.Request(full_url, callback=self.parse_forum)
       yield scrapy.Request(full_url, callback=self.parse_thread)
 
   def parse_thread(self, response):
